@@ -1,0 +1,15 @@
+[
+{
+  "modid": "auracontrol",
+  "name": "AuraControl",
+  "description": "An addon mod for Thaumcraft that allows tweaking the generation of the Aura by biome.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "authorList": ["TheCodex6824"],
+  "credits": "The Thaumcraft community for being cool",
+  "screenshots": [],
+  "useDependencyInformation": true,
+  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[BETA26,)"],
+  "dependencies": ["thaumcraft"]
+}
+]
