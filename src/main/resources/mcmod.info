@@ -9,7 +9,7 @@
   "credits": "The Thaumcraft community for being cool",
   "screenshots": [],
   "useDependencyInformation": true,
-  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[BETA26,)"],
+  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[6.1.BETA26,)"],
   "dependencies": ["thaumcraft"]
 }
 ]
