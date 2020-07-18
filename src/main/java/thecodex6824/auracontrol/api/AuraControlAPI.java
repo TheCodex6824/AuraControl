@@ -49,4 +49,24 @@ public final class AuraControlAPI {
         handler.handleAura(world, chunkX, chunkZ);
     }
     
+    public static void setupTCWorldgenFlags(World world, int chunkX, int chunkZ) {
+        handler.setupTCWorldgenFlags(world, chunkX, chunkZ);
+    }
+    
+    public static boolean shouldHandleCrystalGen() {
+        return handler.shouldHandleCrystalGen();
+    }
+    
+    public static void setHandleCrystalGen(boolean handle) {
+        handler.setHandleCrystalGen(handle);
+    }
+    
+    public static boolean shouldHandleTreeGen() {
+        return handler.shouldHandleTreeGen();
+    }
+    
+    public static void setHandleTreeGen(boolean handle) {
+        handler.setHandleTreeGen(handle);
+    }
+    
 }

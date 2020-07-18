@@ -54,6 +54,20 @@ public final class AuraConfig {
     @RequiresMcRestart
     public static String[] biomeList = {};
     
+    @Name("ControlCrystals")
+    @Comment({
+        "Whether the biome list should affect Vis Crystal generation, in addition to the aura."
+    })
+    @RequiresMcRestart
+    public static boolean crystals = false;
+    
+    @Name("ControlTrees")
+    @Comment({
+        "Whether the biome list should affect Thaumcraft tree generation, in addition to the aura."
+    })
+    @RequiresMcRestart
+    public static boolean trees = false;
+    
     @SubscribeEvent
     public static void onConfigSync(OnConfigChangedEvent event) {
         if (event.getModID().equals(AuraControlAPI.MODID))

@@ -18,27 +18,23 @@
  *  along with Thaumic Augmentation.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.auracontrol.api.internal;
+package thecodex6824.auracontrol;
 
-import java.util.Set;
+import java.util.Random;
 
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.IChunkGenerator;
+import net.minecraftforge.fml.common.IWorldGenerator;
+import thecodex6824.auracontrol.api.AuraControlAPI;
 
-public interface IInternalMethodHandler {
+public class AuraWorldSetupGenerator implements IWorldGenerator {
 
-    public Set<Biome> getAllowedBiomes();
-    
-    public void handleAura(World world, int chunkX, int chunkZ);
-    
-    public void setupTCWorldgenFlags(World world, int chunkX, int chunkZ);
-    
-    public boolean shouldHandleCrystalGen();
-    
-    public void setHandleCrystalGen(boolean handle);
-    
-    public boolean shouldHandleTreeGen();
-    
-    public void setHandleTreeGen(boolean handle);
+    @Override
+    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator,
+            IChunkProvider chunkProvider) {
+        
+        AuraControlAPI.setupTCWorldgenFlags(world, chunkX, chunkZ);
+    }
     
 }

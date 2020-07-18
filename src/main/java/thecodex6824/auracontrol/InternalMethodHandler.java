@@ -26,6 +26,7 @@ import java.util.Set;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.world.aura.AuraChunk;
 import thaumcraft.common.world.aura.AuraHandler;
 import thecodex6824.auracontrol.api.AuraControlAPI;
@@ -34,6 +35,8 @@ import thecodex6824.auracontrol.api.internal.IInternalMethodHandler;
 public class InternalMethodHandler implements IInternalMethodHandler {
 
     protected HashSet<Biome> allowedBiomes = new HashSet<>();
+    protected boolean crystalGen;
+    protected boolean treeGen;
     
     @Override
     public Set<Biome> getAllowedBiomes() {
@@ -49,6 +52,41 @@ public class InternalMethodHandler implements IInternalMethodHandler {
             chunk.setVis(0.0F);
             chunk.setFlux(0.0F);
         }
+    }
+    
+    @Override
+    public void setupTCWorldgenFlags(World world, int chunkX, int chunkZ) {
+        if (crystalGen || treeGen) {
+            Biome biome = world.getBiome(new BlockPos(chunkX * 16 + 8, 64, chunkZ * 16 + 8));
+            if (!AuraControlAPI.getAllowedBiomes().contains(biome)) {
+                ModConfig.CONFIG_WORLD.generateCrystals = false;
+                ModConfig.CONFIG_WORLD.generateTrees = false;
+            }
+            else {
+                ModConfig.CONFIG_WORLD.generateCrystals = true;
+                ModConfig.CONFIG_WORLD.generateTrees = true;
+            }
+        }
+    }
+    
+    @Override
+    public boolean shouldHandleCrystalGen() {
+        return crystalGen;
+    }
+    
+    @Override
+    public void setHandleCrystalGen(boolean allow) {
+        crystalGen = allow;
+    }
+    
+    @Override
+    public boolean shouldHandleTreeGen() {
+        return treeGen;
+    }
+    
+    @Override
+    public void setHandleTreeGen(boolean allow) {
+        treeGen = allow;
     }
     
 }

@@ -55,6 +55,10 @@ public class AuraControl {
         else
             allowedBiomes.removeIf(b -> list.contains(b.getRegistryName().toString()));
         
+        AuraControlAPI.setHandleCrystalGen(AuraConfig.crystals);
+        AuraControlAPI.setHandleTreeGen(AuraConfig.trees);
+        
+        GameRegistry.registerWorldGenerator(new AuraWorldSetupGenerator(), -1);
         GameRegistry.registerWorldGenerator(new AuraWorldGenerator(), 100000);
     }
     
