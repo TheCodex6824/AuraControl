@@ -54,16 +54,23 @@ public final class AuraConfig {
     @RequiresMcRestart
     public static String[] biomeList = {};
     
+    @Name("ControlAura")
+    @Comment({
+        "Whether the biome list should affect Aura generation."
+    })
+    @RequiresMcRestart
+    public static boolean aura = true;
+    
     @Name("ControlCrystals")
     @Comment({
-        "Whether the biome list should affect Vis Crystal generation, in addition to the aura."
+        "Whether the biome list should affect Vis Crystal generation."
     })
     @RequiresMcRestart
     public static boolean crystals = false;
     
     @Name("ControlTrees")
     @Comment({
-        "Whether the biome list should affect Thaumcraft tree generation, in addition to the aura."
+        "Whether the biome list should affect Thaumcraft tree generation."
     })
     @RequiresMcRestart
     public static boolean trees = false;

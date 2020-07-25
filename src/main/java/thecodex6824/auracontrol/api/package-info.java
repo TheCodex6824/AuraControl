@@ -18,21 +18,11 @@
  *  along with AuraControl.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.auracontrol.api;
-
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-
 /**
- * Holds the Capability instance for the OriginalAuraInfo
- * capability.
- * @see IOriginalAuraInfo
+ * API providing access to AuraControl's ability to restrict aura generation, as well as
+ * other associated features.
  */
-public final class CapabilityOriginalAuraInfo {
-
-    private CapabilityOriginalAuraInfo() {}
-    
-    @CapabilityInject(IOriginalAuraInfo.class)
-    public static final Capability<IOriginalAuraInfo> AURA_INFO = null;
-    
-}
+@net.minecraftforge.fml.common.API(owner = AuraControlAPI.MODID, provides = AuraControlAPI.PROVIDES, 
+    apiVersion = AuraControlAPI.API_VERSION)
+@javax.annotation.ParametersAreNonnullByDefault
+package thecodex6824.auracontrol.api;

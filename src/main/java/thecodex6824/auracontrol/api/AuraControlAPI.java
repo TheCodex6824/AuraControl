@@ -37,34 +37,93 @@ public final class AuraControlAPI {
     
     private static IInternalMethodHandler handler;
     
+    /**
+     * For internal use only - sets the handler for API methods
+     * @param newHandler The handler to use
+     */
     public static void setMethodHandler(IInternalMethodHandler newHandler) {
         handler = newHandler;
     }
     
+    /**
+     * Returns the set of all biomes that should have an aura and aura features.
+     * It will always be the allowed biomes regardless of how the user configured
+     * the list (i.e. regardless of whether a blocklist or allowlist was used).
+     * @return The set of all biomes that should have an aura generated
+     */
     public static Set<Biome> getAllowedBiomes() {
         return handler.getAllowedBiomes();
     }
     
+    /**
+     * Modifies the aura, taking the allowed biome list into account, for the given chunk.
+     * It may set the chunk vis cap, vis amount, and flux amount, but will not change
+     * the information in the chunk's OriginalAuraInfo capability.
+     * @param world The world the chunk is located in
+     * @param chunkX The chunk X coordinate
+     * @param chunkZ The chunk Z coordinate
+     * @see IOriginalAuraInfo
+     */
     public static void handleAura(World world, int chunkX, int chunkZ) {
         handler.handleAura(world, chunkX, chunkZ);
     }
     
+    /**
+     * Prepares the static final fields in TC's config class to support disabling
+     * crystals and Thaumcraft trees in biomes with no aura. This needs to be called
+     * before Thaumcraft's world generator is called.
+     * @param world The world the chunk is located in
+     * @param chunkX The chunk X coordinate
+     * @param chunkZ The chunk Z coordinate
+     */
     public static void setupTCWorldgenFlags(World world, int chunkX, int chunkZ) {
         handler.setupTCWorldgenFlags(world, chunkX, chunkZ);
     }
     
+    /**
+     * Returns if aura gen should be controlled.
+     * @return If crystal gen should be controlled
+     */
+    public static boolean shouldHandleAuraGen() {
+        return handler.shouldHandleAuraGen();
+    }
+    
+    /**
+     * Sets if crystal gen should be controlled.
+     * @param handle If crystal gen should be handled
+     */
+    public static void setHandleAuraGen(boolean handle) {
+        handler.setHandleAuraGen(handle);
+    }
+    
+    /**
+     * Returns if crystal gen should be controlled.
+     * @return If crystal gen should be controlled
+     */
     public static boolean shouldHandleCrystalGen() {
         return handler.shouldHandleCrystalGen();
     }
     
+    /**
+     * Sets if crystal gen should be controlled.
+     * @param handle If crystal gen should be handled
+     */
     public static void setHandleCrystalGen(boolean handle) {
         handler.setHandleCrystalGen(handle);
     }
     
+    /**
+     * Returns if Thaumcraft tree gen should be controlled.
+     * @return If tree gen should be controlled
+     */
     public static boolean shouldHandleTreeGen() {
         return handler.shouldHandleTreeGen();
     }
     
+    /**
+     * Sets if Thaumcraft tree gen should be controlled.
+     * @param handle If tree gen should be handled
+     */
     public static void setHandleTreeGen(boolean handle) {
         handler.setHandleTreeGen(handle);
     }

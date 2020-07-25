@@ -37,6 +37,7 @@ public class InternalMethodHandler implements IInternalMethodHandler {
     protected HashSet<Biome> allowedBiomes = new HashSet<>();
     protected boolean crystalGen;
     protected boolean treeGen;
+    protected boolean auraGen;
     
     @Override
     public Set<Biome> getAllowedBiomes() {
@@ -45,12 +46,14 @@ public class InternalMethodHandler implements IInternalMethodHandler {
     
     @Override
     public void handleAura(World world, int chunkX, int chunkZ) {
-        Biome biome = world.getBiome(new BlockPos(chunkX * 16 + 8, 64, chunkZ * 16 + 8));
-        if (!AuraControlAPI.getAllowedBiomes().contains(biome)) {
-            AuraChunk chunk = AuraHandler.getAuraChunk(world.provider.getDimension(), chunkX, chunkZ);
-            chunk.setBase((short) 0);
-            chunk.setVis(0.0F);
-            chunk.setFlux(0.0F);
+        if (auraGen) {
+            Biome biome = world.getBiome(new BlockPos(chunkX * 16 + 8, 64, chunkZ * 16 + 8));
+            if (!AuraControlAPI.getAllowedBiomes().contains(biome)) {
+                AuraChunk chunk = AuraHandler.getAuraChunk(world.provider.getDimension(), chunkX, chunkZ);
+                chunk.setBase((short) 0);
+                chunk.setVis(0.0F);
+                chunk.setFlux(0.0F);
+            }
         }
     }
     
@@ -67,6 +70,16 @@ public class InternalMethodHandler implements IInternalMethodHandler {
                 ModConfig.CONFIG_WORLD.generateTrees = true;
             }
         }
+    }
+    
+    @Override
+    public boolean shouldHandleAuraGen() {
+        return auraGen;
+    }
+    
+    @Override
+    public void setHandleAuraGen(boolean allow) {
+        auraGen = allow;
     }
     
     @Override

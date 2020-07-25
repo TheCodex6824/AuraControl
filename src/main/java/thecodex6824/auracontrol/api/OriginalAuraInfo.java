@@ -23,6 +23,10 @@ package thecodex6824.auracontrol.api;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
 
+/**
+ * Default implementation for the OriginalAuraInfo capability.
+ * @see IOriginalAuraInfo
+ */
 public class OriginalAuraInfo implements IOriginalAuraInfo, INBTSerializable<NBTTagCompound> {
 
     protected short base;

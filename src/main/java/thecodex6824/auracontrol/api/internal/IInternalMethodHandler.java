@@ -25,6 +25,9 @@ import java.util.Set;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
+/**
+ * For internal use only.
+ */
 public interface IInternalMethodHandler {
 
     public Set<Biome> getAllowedBiomes();
@@ -32,6 +35,10 @@ public interface IInternalMethodHandler {
     public void handleAura(World world, int chunkX, int chunkZ);
     
     public void setupTCWorldgenFlags(World world, int chunkX, int chunkZ);
+    
+    public boolean shouldHandleAuraGen();
+    
+    public void setHandleAuraGen(boolean allow);
     
     public boolean shouldHandleCrystalGen();
     
