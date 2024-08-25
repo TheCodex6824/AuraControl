@@ -1,39 +1,27 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        jcenter()
-        mavenCentral()
-        maven {
-            name 'FancyGradle'
-            url 'https://gitlab.com/api/v4/projects/26758973/packages/maven'
-        }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath group: 'wtf.gofancy.fancygradle', name: 'wtf.gofancy.fancygradle.gradle.plugin', version: '1.1.+'
-    }
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '6.0.+'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'wtf.gofancy.fancygradle'
-
-fancyGradle {
-    patches {
-        resources
-        coremods
-        asm
+repositories {
+    maven {
+        name "Su5ed LegacyDev Fork"
+        url "https://maven.su5ed.dev/releases"
     }
 }
 
 // eclipse thinks test needs resources if this is not here
-// but eclipse is still broken anyway so oh well
 sourceSets {
     test {
         resources.setSrcDirs([])
     }
 }
 
+import net.minecraftforge.gradle.mcp.MCPRepo
+import net.minecraftforge.gradle.common.tasks.SignJar
+import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import org.apache.tools.ant.filters.ReplaceTokens
 
 repositories {
@@ -49,7 +37,22 @@ version = "${mcversion}-${version}"
 group = "thecodex6824.auracontrol" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "AuraControl"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
+ext {
+    if (!project.hasProperty('certFingerprint')) {
+        certFingerprint = ''    
+    }
+}
+
+legacy {
+    fixClasspath = true
+    extractMappings = true
+    attachMappings = true
+}
+
+final arch = System.getProperty("os.arch")
+final needCustomNatives = arch != "x86" && arch != "i386" && arch != "x86_64" && arch != "amd64"
 
 minecraft {
     mappings channel: 'stable', version: '39-1.12'
@@ -64,6 +67,13 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
             
+            if (needCustomNatives) {
+                property 'java.library.path', ''
+                environment 'nativesDirectory', "${project.getProjectDir()}/natives"
+            }
+
+            environment 'MC_VERSION', '1.12.2'
+
             mods {
                 auracontrol {
                     source sourceSets.main
@@ -79,7 +89,14 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
-            
+
+            if (needCustomNatives) {
+                property 'java.library.path', ''
+                environment 'nativesDirectory', "${project.getProjectDir()}/natives"
+            }
+
+            environment 'MC_VERSION', '1.12.2'
+
             mods {
                 auracontrol {
                     source sourceSets.main
@@ -89,8 +106,6 @@ minecraft {
     }
 }
 
-
-
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
     
@@ -99,22 +114,57 @@ dependencies {
     runtimeOnly 'curse.maven:jei-238222:2995897'
     runtimeOnly 'curse.maven:thaumic-jei-285492:2705304'
     runtimeOnly 'curse.maven:baubles-227083:2518667'
+
+    constraints {
+        implementation('net.minecraftforge:legacydev:0.3.0.0-legacyExt') {
+            because 'needed to have all ATs work properly'
+        }
+    
+        implementation('org.ow2.asm:asm-debug-all:5.2') {
+            because 'newer ASM versions include module info that causes errors in Java 8'
+        }
+    }
+    
+    configurations.forEach {
+        // mergetool pollutes the classpath with conflicting classes
+        it.exclude(group: 'net.minecraftforge', module: 'mergetool')
+        
+        // legacydev forge dep wants fatjar as the classifier, but 3.0 lacks it
+        it.resolutionStrategy.eachDependency {
+            if (it.requested.module.toString() == "net.minecraftforge:legacydev") {
+                it.artifactSelection {
+                    it.selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null)
+                }
+            }
+        }
+    }
+    
+    // For the native library binding jars (which need to be the exact same version as the natives)
+    if (needCustomNatives) {
+        implementation fileTree(dir: 'natives', include: '*.jar')
+    }
 }
 
-// https://stackoverflow.com/questions/30038540/replace-token-in-file-before-building-but-keep-token-in-sources/54094378#54094378
+idea {
+    module {
+        inheritOutputDirs = true
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
 task filterTokens(type: Sync) {
     // this will ensure that this task is redone when the versions change.
     inputs.property 'version', version
     inputs.property 'apiversion', apiversion
+    inputs.property 'certFingerprint', certFingerprint
     
     from sourceSets.main.java
-    filter(ReplaceTokens, tokens: [APIVERSION: apiversion.toString(), VERSION: version.toString()])
-    into "$buildDir/filteredSrc"
+    filter(ReplaceTokens, tokens: [APIVERSION: apiversion.toString(), VERSION: version.toString(), FINGERPRINT: certFingerprint.toString()])
+    into "$buildDir/src/$sourceSets.main.name/$sourceSets.main.java.name"
 }
 
-compileJava {
-    source = filterTokens.outputs   
-}
+compileJava.source = filterTokens.outputs
 
 processResources {
     // required to allow file expansion later
@@ -139,23 +189,42 @@ processResources {
     }
 }
 
-jar.finalizedBy('reobfJar')
+javadoc {
+    include 'thecodex6824/auracontrol/api/**'
+}
+
+task signJar(type: SignJar) {
+    dependsOn 'jar'
+    onlyIf { project.hasProperty('keyStore') }
+    
+    if (project.hasProperty('keyStore')) { // needed to skip gradle trying to find vars
+        keyStore = project.keyStore
+        alias = project.alias
+        storePass = project.storePass
+        keyPass = project.keyPass
+        
+        inputFile = jar.archivePath
+        outputFile = jar.archivePath
+    }
+}
+
+tasks.build.dependsOn(tasks.signJar)
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from 'build/docs/javadoc'
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
 }
 
 task apiJar(type: Jar) {
     from sourceSets.main.output
     from sourceSets.main.java
-    classifier = 'api'
+    archiveClassifier = 'api'
     include 'thecodex6824/auracontrol/api/**'
 }
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.java
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 artifacts {
